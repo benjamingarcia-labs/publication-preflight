@@ -5,10 +5,11 @@ import threading
 import json
 import http.client
 import secrets
+import time
 from pathlib import Path
 
 from preflight.scanner import scan
-from preflight.server import validate_rules, save_rules, load_rules, make_handler
+from preflight.server import validate_rules, save_rules, load_rules, make_handler, SessionLease, stop_when_inactive
 import preflight.server as server
 from http.server import ThreadingHTTPServer
 import build
@@ -37,6 +38,41 @@ class ScannerTests(unittest.TestCase):
     def test_banner_targets_future_updates_page(self):
         html = (Path(__file__).resolve().parents[1] / "preflight" / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('href="https://benjaminjgarcia.com/updates"', html)
+
+    def test_session_lease_expires_without_heartbeat(self):
+        lease = SessionLease(timeout=0.1)
+        self.assertFalse(lease.expired())
+        time.sleep(0.13)
+        self.assertTrue(lease.expired())
+        lease.touch()
+        self.assertFalse(lease.expired())
+
+    def test_heartbeat_requires_origin_and_extends_lease(self):
+        token = secrets.token_urlsafe(18)
+        lease = SessionLease(timeout=2)
+        httpd = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(token, lease))
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port, timeout=3)
+            conn.request("POST", f"/s/{token}/api/heartbeat", body="{}", headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            self.assertEqual(response.status, 403)
+            response.read()
+            conn.close()
+            conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port, timeout=3)
+            conn.request("POST", f"/s/{token}/api/heartbeat", body="{}", headers={
+                "Content-Type": "application/json",
+                "Origin": f"http://127.0.0.1:{httpd.server_port}",
+            })
+            response = conn.getresponse()
+            self.assertEqual(response.status, 200)
+            response.read()
+            conn.close()
+            self.assertFalse(lease.expired())
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
 
     def test_too_large(self):
         with self.assertRaises(ValueError):
