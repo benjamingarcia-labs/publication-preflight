@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import secrets
 import threading
+import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -14,6 +15,32 @@ from .scanner import MAX_TEXT, scan
 APP_DIR = Path(os.environ.get("PREFLIGHT_CONFIG_DIR", Path.home() / ".publication-preflight"))
 STATIC_DIR = Path(__file__).parent / "static"
 MAX_REQUEST = MAX_TEXT * 4
+SESSION_TIMEOUT_SECONDS = 60
+
+
+class SessionLease:
+    """Tracks only last client activity; never stores document content."""
+
+    def __init__(self, timeout=SESSION_TIMEOUT_SECONDS):
+        self.timeout = timeout
+        self.last_seen = time.monotonic()
+        self.lock = threading.Lock()
+
+    def touch(self):
+        with self.lock:
+            self.last_seen = time.monotonic()
+
+    def expired(self):
+        with self.lock:
+            return time.monotonic() - self.last_seen >= self.timeout
+
+
+def stop_when_inactive(httpd, lease):
+    """Stop the loopback service after the browser stops checking in."""
+    while not lease.expired():
+        time.sleep(min(2, max(0.05, lease.timeout / 4)))
+    httpd.shutdown()
+
 
 
 def validate_rules(rules):
@@ -65,7 +92,7 @@ def save_rules(rules):
     return rules
 
 
-def make_handler(token):
+def make_handler(token, lease=None):
     prefix = "/s/" + token
 
     class Handler(BaseHTTPRequestHandler):
@@ -98,6 +125,8 @@ def make_handler(token):
             if not self._authorized():
                 self._reply(404, {"error": "Not found"})
                 return
+            if lease is not None:
+                lease.touch()
             subpath = self.path.split("?", 1)[0][len(prefix):]
             if subpath in ("/", "/index.html", "/app.js", "/style.css", "/review.css", "/promo-art.svg"):
                 name = "index.html" if subpath == "/" else subpath[1:]
@@ -118,7 +147,7 @@ def make_handler(token):
                 self._reply(403, {"error": "Forbidden"})
                 return
             subpath = self.path.split("?", 1)[0][len(prefix):]
-            if subpath not in ("/api/rules", "/api/scan", "/api/exit") or self.headers.get("Content-Type", "").split(";", 1)[0] != "application/json":
+            if subpath not in ("/api/rules", "/api/scan", "/api/exit", "/api/heartbeat") or self.headers.get("Content-Type", "").split(";", 1)[0] != "application/json":
                 self._reply(404, {"error": "Not found"})
                 return
             try:
@@ -128,7 +157,13 @@ def make_handler(token):
                 body = json.loads(self.rfile.read(length))
                 if not isinstance(body, dict):
                     raise ValueError("Expected JSON object")
-                if subpath == "/api/exit":
+                if lease is not None:
+                    lease.touch()
+                if subpath == "/api/heartbeat":
+                    if body:
+                        raise ValueError("Heartbeat request must be empty")
+                    self._reply(200, {"status": "active"})
+                elif subpath == "/api/exit":
                     if body:
                         raise ValueError("Exit request must be empty")
                     self._reply(200, {"status": "stopping"})
@@ -147,9 +182,11 @@ def make_handler(token):
 
 def main():
     token = secrets.token_urlsafe(24)
-    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(token))
+    lease = SessionLease()
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(token, lease))
     url = f"http://127.0.0.1:{server.server_port}/s/{token}/"
-    print("Publication Preflight running locally. Use Exit Application or Ctrl+C to stop.")
+    print("Publication Preflight running locally. It stops after 60 seconds without browser activity.")
+    threading.Thread(target=stop_when_inactive, args=(server, lease), daemon=True).start()
     threading.Timer(0.4, lambda: webbrowser.open(url)).start()
     try:
         server.serve_forever()
