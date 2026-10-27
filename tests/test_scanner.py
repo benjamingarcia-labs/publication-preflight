@@ -47,6 +47,23 @@ class ScannerTests(unittest.TestCase):
         lease.touch()
         self.assertFalse(lease.expired())
 
+    def test_inactive_session_shuts_down_server(self):
+        token = secrets.token_urlsafe(18)
+        lease = SessionLease(timeout=0.1)
+        httpd = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(token, lease))
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        watcher = threading.Thread(target=stop_when_inactive, args=(httpd, lease), daemon=True)
+        thread.start()
+        watcher.start()
+        try:
+            watcher.join(timeout=3)
+            thread.join(timeout=3)
+            self.assertFalse(watcher.is_alive())
+            self.assertFalse(thread.is_alive())
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
     def test_heartbeat_requires_origin_and_extends_lease(self):
         token = secrets.token_urlsafe(18)
         lease = SessionLease(timeout=2)
