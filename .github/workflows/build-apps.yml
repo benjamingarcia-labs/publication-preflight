@@ -24,7 +24,7 @@ jobs:
       - name: Package executable
         shell: pwsh
         run: Compress-Archive -Path dist/PublicationPreflight.exe -DestinationPath PublicationPreflight-Windows.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: PublicationPreflight-Windows
           path: PublicationPreflight-Windows.zip
@@ -46,7 +46,7 @@ jobs:
         run: python build.py
       - name: Package app bundle
         run: ditto -c -k --sequesterRsrc --keepParent dist/PublicationPreflight.app PublicationPreflight-macOS.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: PublicationPreflight-macOS
           path: PublicationPreflight-macOS.zip
