@@ -35,7 +35,7 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual(scan("## Public title\n[Documentation](https://example.com)", []), [])
 
     def test_banner_targets_future_updates_page(self):
-        html = (Path(__file__).resolve().parents[1] / "preflight" / "static" / "index.html").read_text()
+        html = (Path(__file__).resolve().parents[1] / "preflight" / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('href="https://benjaminjgarcia.com/updates"', html)
 
     def test_too_large(self):
