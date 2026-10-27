@@ -15,7 +15,7 @@ Scanning does **not** guarantee that content is safe to publish. Always review i
 2. Extract the downloaded ZIP.
 3. On Windows, double-click `PublicationPreflight.exe`. On macOS, open `PublicationPreflight.app`.
 4. The application opens in your default browser.
-5. Select **Exit Application** in the header when finished. Then close the browser tab.
+5. Select **Exit Application** when finished, or close the application tab. The local service automatically stops after approximately 60 seconds without browser activity.
 
 The application listens only on `127.0.0.1` (your own computer).
 
@@ -83,7 +83,7 @@ python3 -m unittest discover -s tests -v
 ## Troubleshooting
 
 - **The browser did not open:** With a source launch, check the terminal for the local address. With a packaged application, report the issue with your operating-system version.
-- **The app remains running:** Use **Exit Application** rather than closing only the browser tab.
+- **The app remains running briefly:** After its browser tab closes, the local process normally exits within approximately 60 seconds. For immediate shutdown, select **Exit Application** before closing the tab. Browser background-tab throttling can occasionally stop the process even when a tab remains open; relaunch the app if that happens.
 - **Rules do not save:** Confirm that your user account can write to its local configuration directory.
 - **A file does not load:** Confirm that it is UTF-8 text and no larger than 1 MiB.
 - **A scan reports no issues:** That means none of the currently configured checks matched; it is not a certification of publication safety.
