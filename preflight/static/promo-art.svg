@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 450" role="img" aria-label="Abstract layers in muted blue and ivory">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#faf7ef"/><stop offset="1" stop-color="#e6e8e4"/></linearGradient>
+    <linearGradient id="slate" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8fa9ba"/><stop offset=".53" stop-color="#54748b"/><stop offset="1" stop-color="#263e52"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d0dde6" stop-opacity=".2"/><stop offset="1" stop-color="#456b85" stop-opacity=".6"/></linearGradient>
+  </defs>
+  <rect width="1400" height="450" fill="url(#paper)"/>
+  <path d="M660 450L1400 30V450Z" fill="#c6d4de" opacity=".58"/>
+  <path d="M865 450L1400 65V450Z" fill="url(#slate)"/>
+  <path d="M1035 0H1400V450H1170Z" fill="#5d7f96" opacity=".7"/>
+  <path d="M1165 0H1400V450H1365Z" fill="#213d55" opacity=".7"/>
+  <path d="M735 450L1275 75L1400 215L955 450Z" fill="url(#glass)"/>
+  <path d="M830 450L1400 230V295L980 450Z" fill="#e5edf0" opacity=".34"/>
+  <path d="M700 450L1370 120M965 450L1400 280M1100 0L1190 450" fill="none" stroke="#d7c4a5" stroke-opacity=".78" stroke-width="1.5"/>
+  <path d="M1040 0V450M1072 0V450M1315 0V450" stroke="#f8f7f2" stroke-opacity=".32" stroke-width="1"/>
+</svg>
