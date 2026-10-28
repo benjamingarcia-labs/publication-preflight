@@ -7,6 +7,18 @@ permissions:
   contents: read
 
 jobs:
+  dependency_audit:
+    name: Python build dependency security audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install build dependency and auditor
+        run: python -m pip install pyinstaller==6.22.3 pip-audit
+      - name: Check installed dependencies against vulnerability advisories
+        run: python -m pip_audit --local
+
   windows:
     name: Windows executable
     runs-on: windows-latest
@@ -24,10 +36,21 @@ jobs:
       - name: Package executable
         shell: pwsh
         run: Compress-Archive -Path dist/PublicationPreflight.exe,README.md,LICENSE -DestinationPath PublicationPreflight-Windows.zip
+      - name: Verify ZIP contents and checksum
+        shell: pwsh
+        run: |
+          Expand-Archive PublicationPreflight-Windows.zip -DestinationPath package-check
+          foreach ($name in @("PublicationPreflight.exe", "README.md", "LICENSE")) {
+            if (-not (Test-Path (Join-Path package-check $name))) { throw "Missing from Windows ZIP: $name" }
+          }
+          $digest = (Get-FileHash PublicationPreflight-Windows.zip -Algorithm SHA256).Hash.ToLower()
+          "$digest  PublicationPreflight-Windows.zip" | Set-Content -Encoding ascii PublicationPreflight-Windows.zip.sha256
       - uses: actions/upload-artifact@v7
         with:
           name: PublicationPreflight-Windows
-          path: PublicationPreflight-Windows.zip
+          path: |
+            PublicationPreflight-Windows.zip
+            PublicationPreflight-Windows.zip.sha256
           retention-days: 7
 
   macos:
@@ -48,8 +71,17 @@ jobs:
         run: |
           ditto -c -k --sequesterRsrc --keepParent dist/PublicationPreflight.app PublicationPreflight-macOS.zip
           zip -j PublicationPreflight-macOS.zip README.md LICENSE
+      - name: Verify ZIP contents and checksum
+        run: |
+          unzip -t PublicationPreflight-macOS.zip
+          unzip -p PublicationPreflight-macOS.zip README.md > /dev/null
+          unzip -p PublicationPreflight-macOS.zip LICENSE > /dev/null
+          unzip -Z1 PublicationPreflight-macOS.zip | grep -q 'PublicationPreflight.app/'
+          shasum -a 256 PublicationPreflight-macOS.zip > PublicationPreflight-macOS.zip.sha256
       - uses: actions/upload-artifact@v7
         with:
           name: PublicationPreflight-macOS
-          path: PublicationPreflight-macOS.zip
+          path: |
+            PublicationPreflight-macOS.zip
+            PublicationPreflight-macOS.zip.sha256
           retention-days: 7
