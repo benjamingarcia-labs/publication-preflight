@@ -1,21 +1,30 @@
 # Publication Preflight
 
-Publication Preflight is an offline tool for checking text and Markdown before publication. It looks for common publishing risks and information that you explicitly mark as restricted. Its browser-based interface runs locally on your computer.
+Publication Preflight is a free, MIT-licensed, open-source offline tool for checking text and Markdown before publication. It looks for common publishing risks and information that you explicitly mark as restricted. Its browser-based interface runs locally on your computer.
 
 Scanning does **not** guarantee that content is safe to publish. Always review important documents yourself.
 
+**[Download Publication Preflight v1.0.0](https://github.com/benjamingarcia-labs/publication-preflight/releases/tag/v1.0.0)** · [Project overview](https://benjaminjgarcia.com/projects) · [Get email updates](https://benjaminjgarcia.com/updates)
+
+## Who it helps
+
+For writers and developers preparing text or Markdown for public sharing. Use it to catch restricted phrases, private domains, unresolved wiki links, and other supported publishing risks before your final review. It runs locally without sending your draft to an external service.
+
 ## Requirements
 
+- Windows x64 or macOS on Apple silicon (ARM64) for the v1.0.0 packaged downloads; no Intel Mac package is provided
 - A modern web browser
 - No online account or Python installation for packaged releases
 
 ## Start the application
 
-1. Download the package for your operating system from the application's release page when it is available.
+1. Download the **Windows** or **macOS** application ZIP from the [v1.0.0 release page](https://github.com/benjamingarcia-labs/publication-preflight/releases/tag/v1.0.0). The automatically generated source-code archives are for developers.
 2. Extract the downloaded ZIP.
 3. On Windows, double-click `PublicationPreflight.exe`. On macOS, open `PublicationPreflight.app`.
 4. The application opens in your default browser.
 5. Select **Exit Application** when finished, or close the application tab. The local service automatically stops after approximately 60 seconds without browser activity.
+
+**Installation notice:** These apps are not signed with a trusted publisher certificate; the Mac app is not notarized. Your operating system may show a security warning. Read the release notes and checksums before installing.
 
 The application listens only on `127.0.0.1` (your own computer).
 
@@ -46,6 +55,10 @@ The build creates a Windows executable or macOS app bundle in `dist/`. Windows a
 5. Select **Clear document** to remove the entered text, selected file, and displayed findings from the interface.
 
 The scanner accepts up to **1 MiB** of text per scan.
+
+### Example: check a Markdown draft
+
+Add `internal.example.com` as a blocked domain, then scan a draft containing a link to that domain. Review the flagged line, remove or replace the private link, and scan again. This is a fictional example; use your own rules and review the full document before publishing.
 
 ## What it checks
 
@@ -87,6 +100,12 @@ python3 -m unittest discover -s tests -v
 - **Rules do not save:** Confirm that your user account can write to its local configuration directory.
 - **A file does not load:** Confirm that it is UTF-8 text and no larger than 1 MiB.
 - **A scan reports no issues:** That means none of the currently configured checks matched; it is not a certification of publication safety.
+
+## Help and feedback
+
+[Report a bug or suggest an improvement](https://github.com/benjamingarcia-labs/publication-preflight/issues). Include your operating system, browser, and steps to reproduce. Do not post sensitive documents, protection rules, credentials, or private links in public issues.
+
+[More tools and articles by Benjamin Garcia](https://benjaminjgarcia.com/) · [Email updates](https://benjaminjgarcia.com/updates)
 
 ---
 
