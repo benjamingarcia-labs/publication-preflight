@@ -22,6 +22,9 @@ def command(system: str | None = None) -> list[str]:
     static = ROOT / "preflight" / "static"
     if not static.is_dir():
         raise RuntimeError("Application interface assets are missing")
+    if system == "Darwin":
+        return [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
+                str(ROOT / "packaging" / "macos.spec")]
     args = [
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
         "--windowed", "--name", "PublicationPreflight",
@@ -29,8 +32,6 @@ def command(system: str | None = None) -> list[str]:
     ]
     if system == "Windows":
         args.append("--onefile")
-    else:
-        args.append("--onedir")  # Generates PublicationPreflight.app on macOS.
     return args + [str(ROOT / "launcher.py")]
 
 
