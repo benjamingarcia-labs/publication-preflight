@@ -101,8 +101,8 @@ class ScannerTests(unittest.TestCase):
 
     def test_native_packaging_targets(self):
         self.assertIn("--onefile", build.command("Windows"))
-        self.assertIn("--onedir", build.command("Darwin"))
-        self.assertIn("--windowed", build.command("Darwin"))
+        self.assertEqual(Path(build.command("Darwin")[-1]), build.ROOT / "packaging" / "macos.spec")
+        self.assertTrue(Path(build.command("Darwin")[-1]).is_file())
         with self.assertRaises(RuntimeError):
             build.command("Linux")
 

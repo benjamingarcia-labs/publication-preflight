@@ -67,6 +67,11 @@ jobs:
         run: python -m pip install pyinstaller==6.22.3
       - name: Build app bundle
         run: python build.py
+      - name: Verify bundle release metadata and ad-hoc signature
+        run: |
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/PublicationPreflight.app/Contents/Info.plist)" = '1.0.0'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/PublicationPreflight.app/Contents/Info.plist)" = '1.0.0'
+          codesign --verify --deep --strict dist/PublicationPreflight.app
       - name: Package app bundle
         run: |
           ditto -c -k --sequesterRsrc --keepParent dist/PublicationPreflight.app PublicationPreflight-macOS.zip
