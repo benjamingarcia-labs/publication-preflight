@@ -6,6 +6,8 @@ Scanning does **not** guarantee that content is safe to publish. Always review i
 
 **[Download Publication Preflight v1.0.0](https://github.com/benjamingarcia-labs/publication-preflight/releases/tag/v1.0.0)** · [Project overview](https://benjaminjgarcia.com/projects) · [Get email updates](https://benjaminjgarcia.com/updates)
 
+![Publication Preflight Scan tab showing an empty document field, file chooser, Clear document and Run preflight scan controls, and local/offline status.](publication-preflight-scan.png)
+
 ## Who it helps
 
 For writers and developers preparing text or Markdown for public sharing. Use it to catch restricted phrases, private domains, unresolved wiki links, and other supported publishing risks before your final review. It runs locally without sending your draft to an external service.
