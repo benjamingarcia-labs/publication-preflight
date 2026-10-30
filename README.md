@@ -4,7 +4,7 @@ Publication Preflight is a free, MIT-licensed, open-source offline tool for chec
 
 Scanning does **not** guarantee that content is safe to publish. Always review important documents yourself.
 
-**[Download Publication Preflight v1.0.0](https://github.com/benjamingarcia-labs/publication-preflight/releases/tag/v1.0.0)** · [Project overview](https://benjaminjgarcia.com/projects/publication-preflight) · [Get email updates](https://benjaminjgarcia.com/updates)
+**[Download Publication Preflight v1.0.0](https://github.com/benjamingarcia-labs/publication-preflight/releases/tag/v1.0.0)** · [Project overview](https://benjaminjgarcia.com/projects/publication-preflight) · [Step-by-step tutorial](https://benjaminjgarcia.com/projects/publication-preflight/tutorial) · [Get email updates](https://benjaminjgarcia.com/updates)
 
 ![Publication Preflight Scan tab showing an empty document field, file chooser, Clear document and Run preflight scan controls, and local/offline status.](publication-preflight-scan.png)
 
